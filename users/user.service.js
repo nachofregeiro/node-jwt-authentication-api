@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 
 // users hardcoded for simplicity, store in a db for production applications
-let users = [{ id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' }];
+let users = [{ id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User', createdDate: new Date() }];
 
 for (i = 2; i < 20; i++) {
     users.push({ 
@@ -10,9 +10,12 @@ for (i = 2; i < 20; i++) {
         username: 'test' + i, 
         password: 'test' + i, 
         firstName: 'Test' + i, 
-        lastName: 'User' + i 
+        lastName: 'User' + i,
+        createdDate: new Date(new Date().getTime() - (5 * i * 60000))
     });
 }
+
+console.log(users);
 
 module.exports = {
     authenticate,
@@ -33,10 +36,17 @@ async function authenticate({ username, password }) {
     };
 }
 
-async function getAll({ page, pageSize }) {
+async function getAll({ page, pageSize, from, to }) {
+    var data = users.map(u => omitPassword(u));
 
-    return paginate(users.map(u => omitPassword(u)), pageSize, page);
-    // return users.map(u => omitPassword(u));
+    if (from) {
+        data = data.filter(u => u.createdDate >= new Date(from));
+    }
+    if (to) {
+        data = data.filter(u => u.createdDate <= new Date(to));
+    }
+
+    return paginate(data, pageSize, page);
 }
 
 // helper functions
