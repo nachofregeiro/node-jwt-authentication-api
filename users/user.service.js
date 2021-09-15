@@ -46,7 +46,10 @@ async function getAll({ page, pageSize, from, to }) {
         data = data.filter(u => u.createdDate <= new Date(to));
     }
 
-    return paginate(data, pageSize, page);
+    if (page && pageSize) {
+        return paginate(data, pageSize, page);
+    }
+    return data;
 }
 
 // helper functions
