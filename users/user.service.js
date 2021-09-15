@@ -2,7 +2,17 @@
 const jwt = require('jsonwebtoken');
 
 // users hardcoded for simplicity, store in a db for production applications
-const users = [{ id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' }];
+let users = [{ id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' }];
+
+for (i = 2; i < 20; i++) {
+    users.push({ 
+        id: i, 
+        username: 'test' + i, 
+        password: 'test' + i, 
+        firstName: 'Test' + i, 
+        lastName: 'User' + i 
+    });
+}
 
 module.exports = {
     authenticate,
@@ -15,7 +25,7 @@ async function authenticate({ username, password }) {
     if (!user) throw 'Username or password is incorrect';
 
     // create a jwt token that is valid for 7 days
-    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: 1 });
+    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: 30 });
 
     return {
         ...omitPassword(user),
@@ -23,7 +33,7 @@ async function authenticate({ username, password }) {
     };
 }
 
-async function getAll() {
+async function getAll({ page, pageSize }) {
     return users.map(u => omitPassword(u));
 }
 
