@@ -25,7 +25,7 @@ async function authenticate({ username, password }) {
     if (!user) throw 'Username or password is incorrect';
 
     // create a jwt token that is valid for 7 days
-    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: 30 });
+    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: 60 });
 
     return {
         ...omitPassword(user),
@@ -34,7 +34,9 @@ async function authenticate({ username, password }) {
 }
 
 async function getAll({ page, pageSize }) {
-    return users.map(u => omitPassword(u));
+
+    return paginate(users.map(u => omitPassword(u)), pageSize, page);
+    // return users.map(u => omitPassword(u));
 }
 
 // helper functions
@@ -42,4 +44,9 @@ async function getAll({ page, pageSize }) {
 function omitPassword(user) {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
+}
+
+function paginate(array, page_size, page_number) {
+    // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+    return array.slice((page_number - 1) * page_size, page_number * page_size);
 }
